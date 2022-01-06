@@ -6,6 +6,7 @@ from pysummarization.abstractabledoc.top_n_rank_abstractor import TopNRankAbstra
 
 nltk.download('punkt')
 
+
 class Summarizer:
     def __init__(self):
         pass

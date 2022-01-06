@@ -76,7 +76,7 @@ class WikiSearch:
         coll_name = title.strip().replace(" ", "")
         p_list = self.find_elements_by_css_selector(locator.p_element_locator())
         if len(p_list) <= 2:
-            return title, "Wikipedia Confused! Try again"
+            return coll_name, title, "Wikipedia Confused! Try again"
         body = ""
         for t in p_list:
             body += t.text + " "
