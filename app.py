@@ -65,7 +65,7 @@ def summary():
         wiki_obj = WikiSearch(ChromeDriverManager().install(), chrome_options, db_name)
         try:
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                executor.submit(scrap, [wiki_obj, search_string])
+                executor.submit(scrap, wiki_obj, search_string)
         # thread = ThreadClass(wiki_obj, search_string)
         except Exception as e:
             raise Exception("Error: \t" + str(e))
