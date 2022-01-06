@@ -9,10 +9,10 @@ from mongodbOperations import MongoDBOperations
 
 
 class WikiSearch:
-    def __init__(self, executable_path, db_name):
+    def __init__(self, executable_path, chrome_options, db_name):
         try:
             self.db_name = db_name
-            self.driver = webdriver.Chrome(executable_path=executable_path)
+            self.driver = webdriver.Chrome(executable_path=executable_path, chrome_options=chrome_options)
             self.summarizer_obj = Summarizer()
             self.mongo_client = MongoDBOperations()
         except Exception as e:

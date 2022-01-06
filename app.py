@@ -1,4 +1,5 @@
 import os
+from selenium import webdriver
 from flask import Flask, request, render_template, redirect
 from wikiSearch import WikiSearch
 from webdriver_manager.chrome import ChromeDriverManager
@@ -10,6 +11,11 @@ app = Flask(__name__)
 title, body_summary, images_encoded, references = "", "", [], []
 db_name = "WikiSummary"
 
+chrome_options = webdriver.ChromeOptions()
+chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--disable-dev-shm-uses")
+chrome_options.add_argument("--no-sandbox")
 
 class ThreadClass:
 
@@ -46,7 +52,7 @@ def summary():
         if search_string == "":
             return redirect('/')
 
-        wiki_obj = WikiSearch(ChromeDriverManager().install(), db_name)
+        wiki_obj = WikiSearch(ChromeDriverManager().install(), chrome_options, db_name)
         try:
             thread = ThreadClass(wiki_obj, search_string)
         except Exception as e:
