@@ -17,6 +17,7 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--disable-dev-shm-uses")
 chrome_options.add_argument("--no-sandbox")
 
+
 class ThreadClass:
 
     def __init__(self, wiki_obj, search_string):
