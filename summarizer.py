@@ -4,6 +4,7 @@ from pysummarization.nlpbase.auto_abstractor import AutoAbstractor
 from pysummarization.tokenizabledoc.simple_tokenizer import SimpleTokenizer
 from pysummarization.abstractabledoc.top_n_rank_abstractor import TopNRankAbstractor
 
+nltk.download('punkt')
 
 class Summarizer:
     def __init__(self):
