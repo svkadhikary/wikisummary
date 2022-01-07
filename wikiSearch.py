@@ -55,7 +55,7 @@ class WikiSearch:
             raise Exception("Unable to locate elements by class name\n" + str(e))
 
     def wait(self):
-        self.driver.implicitly_wait(3)
+        self.driver.implicitly_wait(1)
 
     def quit(self):
         self.driver.quit()
@@ -86,7 +86,9 @@ class WikiSearch:
         for t in p_list:
             body += t.text + " "
 
-        return body
+        body_summary = self.summarizer_obj.summarize(body)
+
+        return body_summary
 
     def wiki_pic_scrapper(self, locator):
         img_array = []
@@ -104,7 +106,10 @@ class WikiSearch:
             except NoSuchElementException:
                 print("No infobox image")
 
-            return img_array, info_image
+            info_image_encoded = base64operations.b64encoder_single_image(info_image)
+            images_encoded = base64operations.b64_encoder(img_array)
+
+            return images_encoded, info_image_encoded
         except Exception as e:
             raise Exception("Error: \t\t\t" + str(e))
 
@@ -134,19 +139,22 @@ class WikiSearch:
                     f2 = executor.submit(self.wiki_pic_scrapper, locator)
                     f3 = executor.submit(self.wiki_references_scrapper, locator)
 
-                    body = f1.result()
-                    images, info_image = f2.result()
+                    body_summary = f1.result()
+                    print("Summarized")
+                    images_encoded, info_image_encoded = f2.result()
+                    print("Images Encoded")
                     references = f3.result()
+                    print("References scrapped")
 
                 # body = self.wiki_text_scrapper(locator)
-                body_summary = self.summarizer_obj.summarize(body)
-                print("Summarized")
+                # body_summary = self.summarizer_obj.summarize(body)
+                # print("Summarized")
                 # images, info_image = self.wiki_pic_scrapper(locator)
-                info_image_encoded = base64operations.b64encoder_single_image(info_image)
-                images_encoded = base64operations.b64_encoder(images)
-                print("Images Encoded")
+                # info_image_encoded = base64operations.b64encoder_single_image(info_image)
+                # images_encoded = base64operations.b64_encoder(images)
+                # print("Images Encoded")
                 # references = self.wiki_references_scrapper(locator)
-                print("References scrapped")
+                # print("References scrapped")
 
                 record = {"title": title, "summary": body_summary, "info_image": info_image_encoded,
                           "images": images_encoded, "references": references}
