@@ -9,7 +9,7 @@ import concurrent.futures
 
 app = Flask(__name__)
 
-title, body_summary, images_encoded, references = "", "", [], []
+title, body_summary, info_image_encoded, images_encoded, references = "", "", "", [], []
 db_name = "WikiSummary"
 
 chrome_options = webdriver.ChromeOptions()
@@ -20,10 +20,11 @@ chrome_options.add_argument("--no-sandbox")
 
 
 def scrap(wiki_obj, search_string):
-    global title, body_summary, images_encoded, references
+    global title, body_summary, info_image_encoded, images_encoded, references
     record = wiki_obj.wiki_scrapper(search_string)
     title = record["title"]
     body_summary = record["summary"]
+    info_image_encoded = record['info_image']
     images_encoded = record["images"]
     references = record["references"]
 
@@ -70,8 +71,12 @@ def summary():
         except Exception as e:
             raise Exception("Error: \t" + str(e))
 
-        return render_template('summary.html', heading=title, summary=body_summary, images=images_encoded,
-                               references=references)
+        return render_template('summary.html', heading=title,
+                               summary=body_summary,
+                               info_image=info_image_encoded,
+                               images=images_encoded,
+                               references=references
+                               )
 
 
 if __name__ == '__main__':

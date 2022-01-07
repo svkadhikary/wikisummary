@@ -1,5 +1,5 @@
 from selenium import webdriver
-from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
 from elementLocator import Locator
 from selenium.webdriver.common.by import By
 
@@ -59,7 +59,7 @@ class WikiSearch:
     def quit(self):
         self.driver.quit()
 
-    def wiki_text_scrapper(self, search_string, locator):
+    def search_wiki(self, search_string, locator):
         try:
             search_area = self.find_element_by_xpath(locator.search_input_area())
             search_area.send_keys(search_string)
@@ -71,20 +71,25 @@ class WikiSearch:
         except Exception as e:
             raise Exception("Wikipedia search encountered some error\n" + str(e))
 
-        self.wait()
         title = self.find_element_by_id(locator.firstHeadingLocator()).text
         coll_name = title.strip().replace(" ", "")
+
+        return title, coll_name
+
+    def wiki_text_scrapper(self, locator):
+
         p_list = self.find_elements_by_css_selector(locator.p_element_locator())
-        if len(p_list) <= 2:
-            return coll_name, title, "Wikipedia Confused! Try again"
+        if len(p_list) < 1:
+            return "Wikipedia Confused! Try again"
         body = ""
         for t in p_list:
             body += t.text + " "
 
-        return coll_name, title, body
+        return body
 
-    def wiki_pic_scrapper(self, title, locator):
+    def wiki_pic_scrapper(self, locator):
         img_array = []
+        info_image = ""
         try:
             images = self.find_elements_by_css_selector(locator.img_element_locator())
             for image in images:
@@ -92,8 +97,13 @@ class WikiSearch:
                 img_array.append(img_url)
                 # if title.split(" ")[0] in img_url:
                 #     img_array.append(img_url)
+            try:
+                infobox = self.driver.find_element(By.CLASS_NAME, "infobox-image")
+                info_image = infobox.find_element(By.CSS_SELECTOR, 'img').get_attribute('src')
+            except NoSuchElementException:
+                print("No infobox image")
 
-            return img_array
+            return img_array, info_image
         except Exception as e:
             raise Exception("Error: \t\t\t" + str(e))
 
@@ -112,20 +122,32 @@ class WikiSearch:
             self.openurl("https://en.wikipedia.org")
             self.wait()
             locator = Locator()
-            coll_name, title, body = self.wiki_text_scrapper(search_string, locator)
-            ##mongo search
+            title, coll_name = self.search_wiki(search_string, locator)
+            # mongo search
             if coll_name in self.mongo_client.list_coll_names(self.db_name):
                 self.quit()
                 return self.mongo_client.fetch_one_record(self.db_name, coll_name)
             else:
+                body = self.wiki_text_scrapper(locator)
                 body_summary = self.summarizer_obj.summarize(body)
-                images = self.wiki_pic_scrapper(title, locator)
-                images_encoded = base64operations.base64encoder(images)
+                print("Summarized")
+                images, info_image = self.wiki_pic_scrapper(locator)
+                info_image_encoded = base64operations.b64encoder_single_image(info_image)
+                images_encoded = base64operations.b64_encoder(images)
+                print("Images Encoded")
                 references = self.wiki_references_scrapper(locator)
-                record = {"title": title, "summary": body_summary, "images": images_encoded, "references": references}
-                self.mongo_client.insert_one(self.db_name, coll_name, record)
+                print("References scrapped")
+
+                record = {"title": title, "summary": body_summary, "info_image": info_image_encoded,
+                          "images": images_encoded, "references": references}
+                try:
+                    self.mongo_client.insert_one(self.db_name, coll_name, record)
+                    print("Inserted in database")
+                except Exception as e:
+                    print(str(e))
                 self.quit()
                 return record
 
         except Exception as e:
+            self.quit()
             raise Exception("Error: \t\t" + str(e))
