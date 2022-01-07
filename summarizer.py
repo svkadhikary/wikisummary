@@ -30,7 +30,7 @@ class Summarizer:
 
         result_dict = auto_abstractor.summarize(body, abstractable_doc)
 
-        limit = 3
+        limit = 5
         i = 1
         summary = ""
 

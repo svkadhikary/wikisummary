@@ -11,7 +11,7 @@
 
 <div class="container mt-3">
   <h2 class="display-4 text-center">Enter Topic</h2>
-  <form action="/summary" method="POST">
+  <form action="/summary" method="POST" onsubmit="submit.disabled = true">
     <div class="row">
       <div class="col"></div>
       <div class="col-sm-5">
@@ -22,12 +22,22 @@
     <div class="row p-2">
         <div class="col"></div>
         <div class="col-sm-10 text-center">
-            <input type="submit" class="btn btn-primary" name="submit">
+            <input type="submit" class="btn btn-primary" name="submit" id="submit">
         </div>
         <div class="col"></div>
     </div>
   </form>
+    <div class="container" style="min-height: 100%; min-height: 100vh; display:flex; align-items: center">
+        <div class="row">
+            <span class="display-5">Did you know:</span>
+            {% for dyk in dyks %}
+            <span class="h-6"><mark>{{ dyk }}</mark></span>
+            {% endfor %}
+        </div>
+    </div>
 </div>
+<script>
 
+</script>
 </body>
 </html><

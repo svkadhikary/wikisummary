@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 import base64operations
 from summarizer import Summarizer
 from mongodbOperations import MongoDBOperations
+import concurrent.futures
 
 
 class WikiSearch:
@@ -128,14 +129,23 @@ class WikiSearch:
                 self.quit()
                 return self.mongo_client.fetch_one_record(self.db_name, coll_name)
             else:
-                body = self.wiki_text_scrapper(locator)
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    f1 = executor.submit(self.wiki_text_scrapper, locator)
+                    f2 = executor.submit(self.wiki_pic_scrapper, locator)
+                    f3 = executor.submit(self.wiki_references_scrapper, locator)
+
+                    body = f1.result()
+                    images, info_image = f2.result()
+                    references = f3.result()
+
+                # body = self.wiki_text_scrapper(locator)
                 body_summary = self.summarizer_obj.summarize(body)
                 print("Summarized")
-                images, info_image = self.wiki_pic_scrapper(locator)
+                # images, info_image = self.wiki_pic_scrapper(locator)
                 info_image_encoded = base64operations.b64encoder_single_image(info_image)
                 images_encoded = base64operations.b64_encoder(images)
                 print("Images Encoded")
-                references = self.wiki_references_scrapper(locator)
+                # references = self.wiki_references_scrapper(locator)
                 print("References scrapped")
 
                 record = {"title": title, "summary": body_summary, "info_image": info_image_encoded,

@@ -50,6 +50,5 @@ def b64_encoder(images):
 
         for completed in concurrent.futures.as_completed(results):
             images_encoded.append(completed.result())
-            print("Encoded")
 
     return images_encoded

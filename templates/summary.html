@@ -70,9 +70,9 @@
             <div class="row">
                 <div class="col-sm-1"></div>
                 <div class="col-sm-10 text-white">
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3">
+                    <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4">
                         {% for image in images %}
-                            <img src="data:image/png;base64, {{ image }}" class="img-fluid">
+                            <img src="data:image/png;base64, {{ image }}" class="img-thumbnail">
                         {% endfor %}
                     </div>
                 </div>

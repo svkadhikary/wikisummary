@@ -3,8 +3,7 @@ from selenium import webdriver
 from flask import Flask, request, render_template, redirect
 from wikiSearch import WikiSearch
 from webdriver_manager.chrome import ChromeDriverManager
-from mongodbOperations import MongoDBOperations
-import threading
+
 import concurrent.futures
 
 app = Flask(__name__)
@@ -53,7 +52,11 @@ def scrap(wiki_obj, search_string):
 
 @app.route('/')
 def index_page():
-    return render_template('index.html')
+    driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+    driver.get("https://en.wikipedia.org/wiki/Main_Page")
+    dyks = driver.find_element_by_id('mp-dyk').find_elements_by_css_selector('li')
+    dyks = [dyk.text for dyk in dyks]
+    return render_template('index.html', dyks=dyks[:-3])
 
 
 @app.route('/summary', methods=["POST", "GET"])
