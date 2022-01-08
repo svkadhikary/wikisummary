@@ -74,6 +74,7 @@ class WikiSearch:
 
         title = self.find_element_by_id(locator.firstHeadingLocator()).text
         coll_name = title.strip().replace(" ", "")
+        print(f"found wiki page: {title}")
 
         return title, coll_name
 
@@ -96,10 +97,9 @@ class WikiSearch:
         try:
             images = self.find_elements_by_css_selector(locator.img_element_locator())
             for image in images:
-                img_url = image.get_attribute("src")
-                img_array.append(img_url)
-                # if title.split(" ")[0] in img_url:
-                #     img_array.append(img_url)
+                if int(image.get_attribute("height")) > 40:
+                    img_url = image.get_attribute("src")
+                    img_array.append(img_url)
             try:
                 infobox = self.driver.find_element(By.CLASS_NAME, "infobox-image")
                 info_image = infobox.find_element(By.CSS_SELECTOR, 'img').get_attribute('src')
@@ -144,8 +144,8 @@ class WikiSearch:
                     images_encoded, info_image_encoded = f2.result()
                     print("Images Encoded")
                     references = f3.result()
-                    print("References scrapped")
 
+                self.quit()
                 # body = self.wiki_text_scrapper(locator)
                 # body_summary = self.summarizer_obj.summarize(body)
                 # print("Summarized")
@@ -163,7 +163,7 @@ class WikiSearch:
                     print("Inserted in database")
                 except Exception as e:
                     print(str(e))
-                self.quit()
+
                 return record
 
         except Exception as e:

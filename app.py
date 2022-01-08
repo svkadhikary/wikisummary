@@ -5,6 +5,7 @@ from wikiSearch import WikiSearch
 from webdriver_manager.chrome import ChromeDriverManager
 
 import concurrent.futures
+import time
 
 app = Flask(__name__)
 
@@ -67,12 +68,18 @@ def summary():
             return redirect('/')
 
         wiki_obj = WikiSearch(ChromeDriverManager().install(), chrome_options, db_name)
+
+        t1 = time.perf_counter()
+
         try:
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 executor.submit(scrap, wiki_obj, search_string)
         # thread = ThreadClass(wiki_obj, search_string)
         except Exception as e:
             raise Exception("Error: \t" + str(e))
+
+        t2 = time.perf_counter()
+        print(f'Finished scraping in {round(t2 - t1, 2)} seconds')
 
         return render_template('summary.html', heading=title,
                                summary=body_summary,
