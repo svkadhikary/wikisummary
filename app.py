@@ -1,6 +1,7 @@
 import os
 from selenium import webdriver
 from flask import Flask, request, render_template, redirect
+from flask_cors import cross_origin
 from wikiSearch import WikiSearch
 from webdriver_manager.chrome import ChromeDriverManager
 
@@ -9,6 +10,7 @@ import time
 
 app = Flask(__name__)
 
+free_status = True
 title, body_summary, info_image_encoded, images_encoded, references = "", "", "", [], []
 db_name = "WikiSummary"
 
@@ -20,38 +22,19 @@ chrome_options.add_argument("--no-sandbox")
 
 
 def scrap(wiki_obj, search_string):
-    global title, body_summary, info_image_encoded, images_encoded, references
+    global free_status, title, body_summary, info_image_encoded, images_encoded, references
+    free_status = False
     record = wiki_obj.wiki_scrapper(search_string)
     title = record["title"]
     body_summary = record["summary"]
     info_image_encoded = record['info_image']
     images_encoded = record["images"]
     references = record["references"]
-
-# class ThreadClass:
-#
-#     def __init__(self, wiki_obj, search_string):
-#         self.wiki_obj = wiki_obj
-#         self.search_string = search_string
-#         self.lock = threading.Lock()
-#
-#         thread = threading.Thread(target=self.scrap)
-#         thread.daemon = True
-#         thread.start()
-#         thread.join()
-#
-#     def scrap(self):
-#         self.lock.acquire()
-#         global title, body_summary, images_encoded, references
-#         record = self.wiki_obj.wiki_scrapper(self.search_string)
-#         title = record["title"]
-#         body_summary = record["summary"]
-#         images_encoded = record["images"]
-#         references = record["references"]
-#         self.lock.release()
+    free_status = True
 
 
 @app.route('/')
+@cross_origin()
 def index_page():
     driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
     driver.get("https://en.wikipedia.org/wiki/Main_Page")
@@ -61,8 +44,16 @@ def index_page():
 
 
 @app.route('/summary', methods=["POST", "GET"])
+@cross_origin()
 def summary():
     if request.method == 'POST':
+        global free_status
+
+        if not free_status:
+            return "Website busy"
+        else:
+            free_status = True
+
         search_string = request.form['term']
         if search_string == "":
             return redirect('/')

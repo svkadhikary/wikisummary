@@ -1,5 +1,4 @@
 import pymongo
-import ssl
 
 
 class MongoDBOperations:
