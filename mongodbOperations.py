@@ -4,7 +4,7 @@ import pymongo
 class MongoDBOperations:
     def __init__(self):
         # self.url = "mongodb://localhost:27017"
-        self.url = "mongodb+srv://svkmongo:svkmongo@cluster0.ie2jz.mongodb.net/myFirstDatabase?retryWrites=true&w" \
+        self.url = "mongodb+srv://<username>:<password>@cluster0.ie2jz.mongodb.net/myFirstDatabase?retryWrites=true&w" \
                    "=majority"
 
     def get_mongo_client(self):
