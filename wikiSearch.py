@@ -131,6 +131,7 @@ class WikiSearch:
             title, coll_name = self.search_wiki(search_string, locator)
             # mongo search
             if coll_name in self.mongo_client.list_coll_names(self.db_name):
+                print("found in database")
                 self.quit()
                 return self.mongo_client.fetch_one_record(self.db_name, coll_name)
             else:
@@ -144,17 +145,9 @@ class WikiSearch:
                     images_encoded, info_image_encoded = f2.result()
                     print("Images Encoded")
                     references = f3.result()
+                    print("References scrapped")
 
                 self.quit()
-                # body = self.wiki_text_scrapper(locator)
-                # body_summary = self.summarizer_obj.summarize(body)
-                # print("Summarized")
-                # images, info_image = self.wiki_pic_scrapper(locator)
-                # info_image_encoded = base64operations.b64encoder_single_image(info_image)
-                # images_encoded = base64operations.b64_encoder(images)
-                # print("Images Encoded")
-                # references = self.wiki_references_scrapper(locator)
-                # print("References scrapped")
 
                 record = {"title": title, "summary": body_summary, "info_image": info_image_encoded,
                           "images": images_encoded, "references": references}

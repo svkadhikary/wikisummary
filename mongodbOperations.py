@@ -1,11 +1,13 @@
 import pymongo
+import os
 
 
 class MongoDBOperations:
     def __init__(self):
+        self.user_cred = os.environ.get("USER_CRED")
         # self.url = "mongodb://localhost:27017"
-        self.url = "mongodb+srv://svkmongo:svkmongo@cluster0.ie2jz.mongodb.net/myFirstDatabase?retryWrites=true&w" \
-                   "=majority"
+        self.url = f"mongodb+srv://{self.user_cred}:{self.user_cred}@cluster0.ie2jz.mongodb.net/myFirstDatabase" \
+                   f"?retryWrites=true&w=majority"
 
     def get_mongo_client(self):
         try:
