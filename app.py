@@ -40,6 +40,7 @@ def index_page():
     driver.get("https://en.wikipedia.org/wiki/Main_Page")
     dyks = driver.find_element_by_id('mp-dyk').find_elements_by_css_selector('li')
     dyks = [dyk.text for dyk in dyks]
+    driver.quit()
     return render_template('index.html', dyks=dyks[:-3])
 
 
